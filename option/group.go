@@ -6,6 +6,9 @@ type SelectorOutboundOptions struct {
 	InterruptExistConnections bool     `json:"interrupt_exist_connections,omitempty"`
 }
 
+type RandomSelectorOutboundOptions struct {
+	Outbounds []string `json:"outbounds"`
+}
 type URLTestOutboundOptions struct {
 	Outbounds                 []string `json:"outbounds"`
 	URL                       string   `json:"url,omitempty"`

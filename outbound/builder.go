@@ -10,7 +10,9 @@ import (
 	E "github.com/sagernet/sing/common/exceptions"
 )
 
-func New(ctx context.Context, router adapter.Router, logger log.ContextLogger, tag string, options option.Outbound) (adapter.Outbound, error) {
+func New(
+	ctx context.Context, router adapter.Router, logger log.ContextLogger, tag string, options option.Outbound,
+) (adapter.Outbound, error) {
 	var metadata *adapter.InboundContext
 	if tag != "" {
 		ctx, metadata = adapter.AppendContext(ctx)
@@ -59,6 +61,8 @@ func New(ctx context.Context, router adapter.Router, logger log.ContextLogger, t
 		return NewSelector(ctx, router, logger, tag, options.SelectorOptions)
 	case C.TypeURLTest:
 		return NewURLTest(ctx, router, logger, tag, options.URLTestOptions)
+	case C.TypeRandom:
+		return NewRandomSelector(ctx, router, logger, tag, options.RandomSelectorOptions)
 	default:
 		return nil, E.New("unknown outbound type: ", options.Type)
 	}

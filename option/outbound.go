@@ -8,25 +8,26 @@ import (
 )
 
 type _Outbound struct {
-	Type                string                      `json:"type"`
-	Tag                 string                      `json:"tag,omitempty"`
-	DirectOptions       DirectOutboundOptions       `json:"-"`
-	SocksOptions        SocksOutboundOptions        `json:"-"`
-	HTTPOptions         HTTPOutboundOptions         `json:"-"`
-	ShadowsocksOptions  ShadowsocksOutboundOptions  `json:"-"`
-	VMessOptions        VMessOutboundOptions        `json:"-"`
-	TrojanOptions       TrojanOutboundOptions       `json:"-"`
-	WireGuardOptions    WireGuardOutboundOptions    `json:"-"`
-	HysteriaOptions     HysteriaOutboundOptions     `json:"-"`
-	TorOptions          TorOutboundOptions          `json:"-"`
-	SSHOptions          SSHOutboundOptions          `json:"-"`
-	ShadowTLSOptions    ShadowTLSOutboundOptions    `json:"-"`
-	ShadowsocksROptions ShadowsocksROutboundOptions `json:"-"`
-	VLESSOptions        VLESSOutboundOptions        `json:"-"`
-	TUICOptions         TUICOutboundOptions         `json:"-"`
-	Hysteria2Options    Hysteria2OutboundOptions    `json:"-"`
-	SelectorOptions     SelectorOutboundOptions     `json:"-"`
-	URLTestOptions      URLTestOutboundOptions      `json:"-"`
+	Type                  string                        `json:"type"`
+	Tag                   string                        `json:"tag,omitempty"`
+	DirectOptions         DirectOutboundOptions         `json:"-"`
+	SocksOptions          SocksOutboundOptions          `json:"-"`
+	HTTPOptions           HTTPOutboundOptions           `json:"-"`
+	ShadowsocksOptions    ShadowsocksOutboundOptions    `json:"-"`
+	VMessOptions          VMessOutboundOptions          `json:"-"`
+	TrojanOptions         TrojanOutboundOptions         `json:"-"`
+	WireGuardOptions      WireGuardOutboundOptions      `json:"-"`
+	HysteriaOptions       HysteriaOutboundOptions       `json:"-"`
+	TorOptions            TorOutboundOptions            `json:"-"`
+	SSHOptions            SSHOutboundOptions            `json:"-"`
+	ShadowTLSOptions      ShadowTLSOutboundOptions      `json:"-"`
+	ShadowsocksROptions   ShadowsocksROutboundOptions   `json:"-"`
+	VLESSOptions          VLESSOutboundOptions          `json:"-"`
+	TUICOptions           TUICOutboundOptions           `json:"-"`
+	Hysteria2Options      Hysteria2OutboundOptions      `json:"-"`
+	SelectorOptions       SelectorOutboundOptions       `json:"-"`
+	URLTestOptions        URLTestOutboundOptions        `json:"-"`
+	RandomSelectorOptions RandomSelectorOutboundOptions `json:"-"`
 }
 
 type Outbound _Outbound
@@ -70,6 +71,8 @@ func (h *Outbound) RawOptions() (any, error) {
 		rawOptionsPtr = &h.SelectorOptions
 	case C.TypeURLTest:
 		rawOptionsPtr = &h.URLTestOptions
+	case C.TypeRandom:
+		rawOptionsPtr = &h.RandomSelectorOptions
 	case "":
 		return nil, E.New("missing outbound type")
 	default:

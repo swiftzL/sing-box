@@ -28,6 +28,7 @@ const (
 const (
 	TypeSelector = "selector"
 	TypeURLTest  = "urltest"
+	TypeRandom   = "random"
 )
 
 func ProxyDisplayName(proxyType string) string {
