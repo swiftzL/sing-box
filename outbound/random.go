@@ -13,6 +13,7 @@ import (
 	log2 "log"
 	"math/rand"
 	"net"
+	"time"
 )
 
 type RandomSelector struct {
@@ -25,10 +26,13 @@ type RandomSelector struct {
 	selected                     adapter.Outbound
 	interruptGroup               *interrupt.Group
 	interruptExternalConnections bool
+	lastOutbound                 adapter.Outbound
+	lastTime                     int64
+	outboundExistInterval        int
 }
 
 func (r RandomSelector) DialContext(ctx context.Context, network string, destination M.Socksaddr) (net.Conn, error) {
-	out := r.outboundList[rand.Intn(len(r.outboundList))]
+	out := r.randomOutbound()
 	return out.DialContext(ctx, network, destination)
 }
 
@@ -38,7 +42,7 @@ func (r *RandomSelector) ListenPacket(ctx context.Context, destination M.Socksad
 }
 
 func (r *RandomSelector) NewConnection(ctx context.Context, conn net.Conn, metadata adapter.InboundContext) error {
-	out := r.outboundList[rand.Intn(len(r.outboundList))]
+	out := r.randomOutbound()
 	log2.Println("随机到 tag :", out.Tag())
 	return out.NewConnection(ctx, conn, metadata)
 }
@@ -46,8 +50,18 @@ func (r *RandomSelector) NewConnection(ctx context.Context, conn net.Conn, metad
 func (r *RandomSelector) NewPacketConnection(
 	ctx context.Context, conn N.PacketConn, metadata adapter.InboundContext,
 ) error {
-	out := r.outboundList[rand.Intn(len(r.outboundList))]
+	out := r.randomOutbound()
 	return out.NewPacketConnection(ctx, conn, metadata)
+}
+
+func (r *RandomSelector) randomOutbound() adapter.Outbound {
+	if time.Now().Unix()-r.lastTime < int64(r.outboundExistInterval) {
+		return r.lastOutbound
+	}
+	out := r.outboundList[rand.Intn(len(r.outboundList))]
+	r.lastTime = time.Now().Unix()
+	r.lastOutbound = out
+	return r.lastOutbound
 }
 
 func (r *RandomSelector) Start() error {
@@ -77,10 +91,11 @@ func NewRandomSelector(
 			dependencies: options.Outbounds,
 			network:      []string{N.NetworkTCP},
 		},
-		ctx:            ctx,
-		tags:           options.Outbounds,
-		outbounds:      make(map[string]adapter.Outbound),
-		interruptGroup: interrupt.NewGroup(),
+		ctx:                   ctx,
+		tags:                  options.Outbounds,
+		outbounds:             make(map[string]adapter.Outbound),
+		interruptGroup:        interrupt.NewGroup(),
+		outboundExistInterval: 20, //
 	}
 	if len(outbound.tags) == 0 {
 		return nil, E.New("missing tags")
